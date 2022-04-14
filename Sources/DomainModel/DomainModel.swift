@@ -37,14 +37,16 @@ public struct Money {
     
     public func add(_ money : Money) -> Int {
         let convertedAmount = convert(money.currency)
-        self.currency = converted
-        self.amount = UsdToConversion + money.amount
-        let sumCurrency = convertedAmount + money.amount
-        
+        self.currency = convertedAmount
+        self.amount = convertedAmount + money.amount
+        return convertedAmount + money.amount
     }
     
     public func subtract(_ money : Money) -> Int {
-        
+        let convertedAmount = convert(money.currency)
+        self.currency = convertedAmount
+        self.amount = convertedAmount - money.amount
+        return convertedAmount - money.amount
     }
 }
 
