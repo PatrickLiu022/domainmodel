@@ -9,6 +9,43 @@ struct DomainModel {
 // Money
 //
 public struct Money {
+    var amount : Int
+    var currency : String
+    
+    private func createConversion(_ currencyType : String) -> Double {
+        var currencyType : Double
+        switch currencyType {
+            case "CAN": 1.25
+            case "EUR": 1.5
+            case "GBP": 0.5
+            case "USD": 1.0
+        }
+        return currencyType
+    }
+    
+    public func convert(_ currencyName : String) -> Int {
+        let selfConvert = createConversion(self.currency)
+        let otherConvert = createConversion(currencyName)
+        
+        var selfToUsd = self.amount / selfConvert
+        var UsdToConversion = selfToUsd * otherConvert
+        
+        var result = round(UsdToConversion)
+        
+        return Int(result)!
+    }
+    
+    public func add(_ money : Money) -> Int {
+        let convertedAmount = convert(money.currency)
+        self.currency = converted
+        self.amount = UsdToConversion + money.amount
+        let sumCurrency = convertedAmount + money.amount
+        
+    }
+    
+    public func subtract(_ money : Money) -> Int {
+        
+    }
 }
 
 ////////////////////////////////////
