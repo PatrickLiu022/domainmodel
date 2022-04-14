@@ -13,40 +13,44 @@ public struct Money {
     var currency : String
     
     private func createConversion(_ currencyType : String) -> Double {
-        var currencyType : Double
+        var currencyAmount : Double
         switch currencyType {
-            case "CAN": 1.25
-            case "EUR": 1.5
-            case "GBP": 0.5
-            case "USD": 1.0
+            case "CAN":
+                currencyAmount = 1.25
+            case "EUR":
+                currencyAmount = 1.5
+            case "GBP":
+                currencyAmount = 0.5
+            case "USD":
+                currencyAmount = 1.0
+            default:
+                currencyAmount = 0
         }
-        return currencyType
+        return currencyAmount
     }
     
-    public func convert(_ currencyName : String) -> Int {
+    public func convert(_ currencyName : String) -> Money {
         let selfConvert = createConversion(self.currency)
         let otherConvert = createConversion(currencyName)
         
-        var selfToUsd = self.amount / selfConvert
-        var UsdToConversion = selfToUsd * otherConvert
-        
-        var result = round(UsdToConversion)
-        
-        return Int(result)!
+        if (selfConvert != 0) {
+            let selfToUsd = Double(self.amount) / selfConvert
+            let UsdToConversion : Double = selfToUsd * otherConvert
+            
+            return Money(amount: Int(UsdToConversion), currency: currencyName)
+        } else {
+            return Money(amount: 0, currency: "ERROR")
+        }
     }
     
-    public func add(_ money : Money) -> Int {
+    public func add(_ money : Money) -> Money {
         let convertedAmount = convert(money.currency)
-        self.currency = convertedAmount
-        self.amount = convertedAmount + money.amount
-        return convertedAmount + money.amount
+        return Money(amount: convertedAmount.amount + money.amount, currency: money.currency)
     }
     
-    public func subtract(_ money : Money) -> Int {
+    public func subtract(_ money : Money) -> Money {
         let convertedAmount = convert(money.currency)
-        self.currency = convertedAmount
-        self.amount = convertedAmount - money.amount
-        return convertedAmount - money.amount
+        return Money(amount: convertedAmount.amount - money.amount, currency: money.currency)
     }
 }
 
@@ -57,6 +61,20 @@ public class Job {
     public enum JobType {
         case Hourly(Double)
         case Salary(UInt)
+    }
+    
+    var title : String
+    var type : JobType
+    
+    public func calculateIncome(_ money : Int) -> Int {
+        switch type {
+            case .Hourly(let hourlyPay):
+                return money * 2000
+            case .Salary(let salary):
+                return salary
+            default:
+                return 0
+        }
     }
 }
 
