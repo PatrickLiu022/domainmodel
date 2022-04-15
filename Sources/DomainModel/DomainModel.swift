@@ -114,14 +114,24 @@ public class Job {
 //
 public class Person {
     
-    var firstName : String
-    var lastName : String
+    var firstName : String?
+    var lastName : String?
     var age : Int
     private var _job : Job?
     private var _spouse : Person?
     
-    init(firstName : String, lastName : String, age : Int) {
+    init(firstName : String?, lastName : String?, age : Int) {
         self.firstName = firstName
+        self.lastName = lastName
+        self.age = age
+    }
+    
+    init(firstName: String?, age: Int) {
+        self.firstName = firstName
+        self.age = age
+    }
+    
+    init(lastName: String?, age: Int) {
         self.lastName = lastName
         self.age = age
     }
@@ -153,7 +163,29 @@ public class Person {
     }
     
     public func toString() -> String {
-        return "[Person: firstName:\(self.firstName) lastName:\(self.lastName) age:\(self.age) job:\(self._job as Job?) spouse:\(self._spouse as Person?)]"
+        var unwrappedFName = ""
+        var unwrappedLName = ""
+        var nilJob : String?
+        var unwrappedJob = ""
+        
+        
+        if let fName = self.firstName {
+            unwrappedFName = fName
+        }
+        
+        if let lName = self.lastName {
+            unwrappedLName = lName
+        }
+        
+        if let job = self._job {
+            if self._job?.title == nil {
+                nilJob = nil
+            } else {
+                unwrappedJob = job.title
+            }
+        }
+        
+        return unwrappedJob == "" ? "[Person: firstName:\(unwrappedFName) lastName:\(unwrappedLName) age:\(self.age) job:\(nilJob as String?) spouse:\(self._spouse as Person?)]" : "[Person: firstName:\(unwrappedFName) lastName:\(unwrappedLName) age:\(self.age) job:\(unwrappedJob) spouse:\(self._spouse as Person?)]"
     }
 }
 
