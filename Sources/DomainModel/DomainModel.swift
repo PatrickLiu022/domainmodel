@@ -71,11 +71,11 @@ public class Job {
         self.type = type
     }
     
-    public func calculateIncome() -> Int {
+    public func calculateIncome(_ hours : Int) -> Int {
         var income = 0
         switch type {
             case .Hourly(let hourlyPay):
-                income = Int(hourlyPay) * 2000
+                income = Int(hourlyPay * Double(hours))
             case .Salary(let salary):
                 income = Int(salary)
         }
@@ -94,9 +94,11 @@ public class Job {
     public func raise(byPercent : Double) {
         switch type {
             case .Hourly(let hourlyPay):
-                type = .Hourly(hourlyPay + (hourlyPay * byPercent))
+                let amountRaised = hourlyPay * byPercent
+                type = .Hourly(hourlyPay + amountRaised)
             case .Salary(let salary):
-                type = .Salary(salary + (salary * UInt(byPercent)))
+                let amountRaised = Double(salary) * byPercent
+                type = .Salary(salary + UInt(amountRaised))
         }
     }
 }
@@ -109,8 +111,8 @@ public class Person {
     var firstName : String
     var lastName : String
     var age : Int
-    var job : Job?
-    var spouse : Person?
+    private var _job : Job?
+    private var _spouse : Person?
     
     init(firstName : String, lastName : String, age : Int) {
         self.firstName = firstName
@@ -118,8 +120,34 @@ public class Person {
         self.age = age
     }
     
+    var job : Job? {
+        set {
+            if (self.age >= 18) {
+                self._job = newValue
+            } else {
+                self._job = nil
+            }
+        }
+        get {
+            return self._job
+        }
+    }
+    
+    var spouse : Person? {
+        set {
+            if (self.age >= 18) {
+                self._spouse = newValue
+            } else {
+                self._spouse = nil
+            }
+        }
+        get {
+            return self._spouse
+        }
+    }
+    
     public func toString() -> String {
-        return "[Person: firstName:\(self.firstName) lastName:\(self.lastName) age:\(self.age) job:\(self.job as Job?) spouse:\(self.spouse as Person?)]"
+        return "[Person: firstName:\(self.firstName) lastName:\(self.lastName) age:\(self.age) job:\(self._job as Job?) spouse:\(self._spouse as Person?)]"
     }
 }
 
@@ -134,52 +162,54 @@ public class Family {
     
     var members : [Person]
     
-    init(spouse1 : Person, spouse2 : Person) throws {
+    init(spouse1 : Person, spouse2 : Person) {
         do {
-            var validSpouse1 = validateSpouse(spouse1)
-            var validSpouse2 = validateSpouse(spouse2)
-            
-            if (validSpouse1 && validSpouse) {
-                self.members = [spouse1, spouse2]
-            } else {
-                throw FamilyError.invalidMarriage
-            }
-            
+            self.members = [spouse1, spouse2]
+            let _ = try validateSpouse(spouse1) == nil && validateSpouse(spouse2) == nil
         } catch FamilyError.invalidMarriage {
             print("One spouse is already married")
+        } catch {
+            print("Unknown Error")
         }
     }
     
-    private func validateSpouse(_ spouse : Person) throws -> Bool {
-        return spouse.spouse == nil
+    private func validateSpouse(_ spouse : Person) throws -> Error? {
+        if (spouse.spouse != nil) {
+            throw FamilyError.invalidMarriage
+        }
+        return nil
     }
     
     public func haveChild(_ child : Person) -> Bool {
-        var validSpouse1Age = validateSpouseAge(members[0])
-        var validSpouse2Age = validateSpouseAge(members[1])
         
         do {
-            if (validSpouse1Age || validSpouse2Age) {
-                let newChild = Person(firstName: child.firstName, lastName: child.lastName, age: child.age)
-                members.append(newChild)
-                return true
-            } else {
-                throw FamilyError.invalidAge
-            }
+            let _ = try validateSpouseAge(members[0]) == nil && validateSpouseAge(members[1]) == nil
         } catch FamilyError.invalidAge {
             return false
+        } catch {
+            print("Unknown Error")
         }
+        
+        members.append(child)
+        return true
     }
     
-    private func validateSpouseAge(_ spouse : Person) -> Bool {
-        return spouse.age >= 21
+    private func validateSpouseAge(_ spouse : Person) throws -> Error? {
+        if (spouse.age < 21) {
+            throw FamilyError.invalidAge
+        }
+        return nil
     }
     
-    public func householdIncome(_ family : [Person]) -> Int {
+    public func householdIncome() -> Int {
         var sumIncome = 0
-        for member in family {
-            sumIncome += member.job?.calculateIncome()
+        for member in self.members {
+            let memberIncome = member.job?.calculateIncome(2000)
+            if let memberIncome = memberIncome {
+                sumIncome += memberIncome
+            }
         }
+        
         return sumIncome
     }
 }
