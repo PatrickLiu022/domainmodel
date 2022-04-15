@@ -168,7 +168,6 @@ public class Person {
         var nilJob : String?
         var unwrappedJob = ""
         
-        
         if let fName = self.firstName {
             unwrappedFName = fName
         }
