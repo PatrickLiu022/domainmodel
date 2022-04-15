@@ -49,11 +49,42 @@ class JobTests: XCTestCase {
         job.raise(byPercent: 1.0) // Nice raise, bruh
         XCTAssert(job.calculateIncome(10) == 320)
     }
+    
+    func testConversionFromHourlyToSalary() {
+        let job = Job(title: "Barista", type: Job.JobType.Hourly(12.5))
+        XCTAssert(job.calculateIncome(10) == 125)
+        
+        job.convert()
+        XCTAssert(job.calculateIncome(10) == 25000)
+    }
+    
+    func testConversionWithHourlyRaise() {
+        let job = Job(title: "Barista", type: Job.JobType.Hourly(15.0))
+        XCTAssert(job.calculateIncome(20) == 300)
+        
+        job.raise(byAmount: 2.0)
+        XCTAssert(job.calculateIncome(20) == 340)
+        
+        job.convert()
+        XCTAssert(job.calculateIncome(20) == 34000)
+    }
+    
+    func testConversionWithSalary() {
+        let job = Job(title: "Full Time Employee", type: Job.JobType.Salary(50000))
+        XCTAssert(job.calculateIncome(20) == 50000)
+        
+        job.convert()
+        XCTAssert(job.calculateIncome(20) == 50000)
+    }
   
     static var allTests = [
         ("testCreateSalaryJob", testCreateSalaryJob),
         ("testCreateHourlyJob", testCreateHourlyJob),
         ("testSalariedRaise", testSalariedRaise),
         ("testHourlyRaise", testHourlyRaise),
+        ("testConversionFromHourlyToSalary", testConversionFromHourlyToSalary),
+        ("testConversionWithHourlyRaise", testConversionWithHourlyRaise),
+        ("testConversionWithSalary", testConversionWithSalary),
+        
     ]
 }

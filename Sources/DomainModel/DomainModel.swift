@@ -101,6 +101,12 @@ public class Job {
                 type = .Salary(salary + UInt(amountRaised))
         }
     }
+    
+    public func convert() {
+        if case let .Hourly(hourlyPay) = self.type {
+            self.type = .Salary(UInt(hourlyPay * 2000))
+        }
+    }
 }
 
 ////////////////////////////////////
